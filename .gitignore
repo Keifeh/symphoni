@@ -1,0 +1,23 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/web/node_modules
+
+# Local Environment Variables
+# Exclude all .env files but keep .env.example for guidance
+.env*
+!.env.example
+
+# Next.js build output
+/web/.next
+
+# Production build folder
+/web/out
+
+# Other
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

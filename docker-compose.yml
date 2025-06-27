@@ -1,0 +1,19 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: itsm-postgres-db 
+    restart: always # Ensures the database container will automatically restart if it crashes or if the NAS reboots.
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports:
+      # The format is "HOST_PORT:CONTAINER_PORT".
+      - "5432:5432"
+
+    volumes:
+      # The format is "HOST_PATH:CONTAINER_PATH".
+      - /mnt/user/appdata/symphoni/postgres-data:/var/lib/postgresql/data
