@@ -1,3 +1,10 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,11 +30,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* We can set the title directly here */}
+        <title>Symphoni ITSM</title>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="[--header-height:calc(var(--spacing,1rem)*14)]">
+          <SidebarProvider className="flex flex-col h-screen">
+            <SiteHeader />
+            <div className="flex flex-1 overflow-hidden">
+              <AppSidebar />
+              <SidebarInset>
+                {/* Your individual page content will be rendered here */}
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+                  {children}
+                </main>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
+        </div>
       </body>
     </html>
   );
