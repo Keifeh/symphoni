@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -15,9 +12,91 @@ datasource db {
 }
 
 model Incident {
-  id          Int      @id @default(autoincrement())
-  summary     String
-  priority    String   @default("medium")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 Int                 @id @default(autoincrement())
+  sysId              String              @unique @default(uuid())
+  summary            String
+  priority           String              @default("medium")
+  impact             ImpactLevel         @default(Low)
+  urgency            UrgencyLevel        @default(Low)
+  status             IncidentStatus      @default(OPEN)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  // The user who reported the incident. This is a required field.
+  originUser         User                @relation("ReportedIncidents", fields: [originUserId], references: [sysId])
+  originUserId       String
+
+  // The user the incident is assigned to. This is optional.
+  assignedTo         User?               @relation("AssignedIncidents", fields: [assignedToId], references: [sysId])
+  assignedToId       String?
+
+  // The Configuration Items attached to this incident.
+  configurationItems ConfigurationItem[]
+}
+
+enum IncidentStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  RESOLVED
+  CLOSED
+}
+
+enum ImpactLevel {
+  Low
+  Medium
+  High
+}
+
+enum UrgencyLevel {
+  Low
+  Medium
+  High
+}
+
+model User {
+  id                      Int                 @id @default(autoincrement())
+  sysId                   String              @unique @default(uuid())
+  username                String              @unique
+  email                   String              @unique
+  password                String
+  firstName               String?
+  lastName                String?
+  role                    Role                @default(USER)
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  // Incidents this user has reported and has been assigned.
+  reportedIncidents       Incident[]          @relation("ReportedIncidents")
+  assignedIncidents       Incident[]          @relation("AssignedIncidents")
+
+  // Configuration Items owned by this user.
+  ownedConfigurationItems ConfigurationItem[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model ConfigurationItem {
+  id         Int      @id @default(autoincrement())
+  sysId      String   @unique @default(uuid())
+  name       String   @unique 
+  ciClass    CiClass  // Using your new enum for CI classification
+
+  // The user who owns this CI. This is optional.
+  ciOwner    User?    @relation(fields: [ciOwnerId], references: [sysId])
+  ciOwnerId  String?
+
+  // The incident this CI is currently associated with. This is optional.
+  incident   Incident? @relation(fields: [incidentId], references: [sysId])
+  incidentId String?
+}
+
+enum CiClass {
+  Laptop
+  Desktop
+  Mobile_Phone
+  Tablet
 }
